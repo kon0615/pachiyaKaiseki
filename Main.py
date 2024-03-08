@@ -1,10 +1,11 @@
+import sys 
+import scri
 
 
-
-
-def main(*args:str):
-    areaName = args
+def main():
+    areaName =["宮城県"]
     print(",".join(areaName))
     
+    
 if __name__ =="__main__":
-    main("aaa","bbb")
+    main()
