@@ -3,7 +3,7 @@ from selenium.webdriver.remote  import webelement
 from selenium.webdriver.common import by    
 from selenium.webdriver.chrome.options import Options
 #macOSの場合はchromedriver_binaryはコメントアウト
-#import chromedriver_binary
+import chromedriver_binary
 import time 
 
 class Scrayp:
@@ -19,40 +19,44 @@ class Scrayp:
         self.driver = webdriver.Chrome(options=options)
         self.driver.get(self.targetURL)
         print("webdriver start")
-    def AD_blocker(self) :
+    def AD_blocker(self,driver:webdriver.Chrome) :
         #js_code = 'document.getElementById("gn_interstitial_close_icon").click()' # サイトによる
         #js_code = code
         
         #ADが出るようなところは更新をしてAD回避
 
-        self.driver.refresh() 
+        driver.refresh() 
         
-        Touhoku2 = self.driver.find_elements(by.By.CLASS_NAME,'simple_square_btn')
         
-        while(self.driver.current_url ==self.ad):
+        while(driver.current_url ==self.ad):
             self.driver.refresh()
-            self.SearchForAreaButton(Touhoku2)
+            if driver.current_url !=self.ad:
+                return
         
         
     def Start_scrayping(self,startday:str,Endday:str):
-        ##とりあえず全部
-        MainMenu = self.driver.find_elements(by.By.CLASS_NAME,'simple_square_btn')
+        
+        #MainMenu = self.driver.find_elements(by.By.CLASS_NAME,'simple_square_btn')
         self.driver.get(self.targetURL + self.areaName)
         #地域の店舗URLを取得
-        
+        holeList = self .driver.find_elements(by.By.CLASS_NAME,"table-row")
+        for hole in holeList:
+            if hole.text =='ホール名\n市区郡':
+                continue
+            time.sleep(2)
+            holeURL=  hole.find_element(by.By.TAG_NAME,"a").get_attribute('href')
+            insertQuery = self.GetHoleData(holeURL,hole.text)
+            print("")
         #######
-        time.sleep(5)
-
-        #広告が出るときがある
-        
-
-    def SearchForAreaButton(self,listBt:list[webelement.WebElement]):
-        #メインメニューから指定エリアのボタンを探してクリック
-        for item in  listBt:
-            if item.text == self.areaName:
-                print('catch')
-                
-                item.click()
-                return
+        print("driver END")
+    
+    #ホールデータを取得して文字列に
+    def GetHoleData(self,HoleURL:str,HoleName) -> str:
+        options = Options()
+        options.add_argument('--disable-popup-blocking')
+        NewDriver= webdriver.Chrome(options=options)
+        NewDriver.get(HoleURL)
+        self.AD_blocker(NewDriver)
+        print(f'{HoleName} access')
         
         
