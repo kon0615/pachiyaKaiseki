@@ -38,7 +38,7 @@ class Scrayp:
         ##とりあえず全部
         MainMenu = self.driver.find_elements(by.By.CLASS_NAME,'simple_square_btn')
         self.driver.get(self.targetURL + self.areaName)
-        
+        #地域の店舗URLを取得
         
         #######
         time.sleep(5)
