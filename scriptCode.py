@@ -1,10 +1,11 @@
 from selenium import webdriver
 from selenium.webdriver.remote  import webelement
-from selenium.webdriver.common import by    
+from selenium.webdriver.common.by import By    
 from selenium.webdriver.chrome.options import Options
 #macOSの場合はchromedriver_binaryはコメントアウト
-import chromedriver_binary
-import time 
+#import chromedriver_binary
+from time import sleep
+
 
 class Scrayp:
     targetURL =r"https://ana-slo.com/%e3%83%9b%e3%83%bc%e3%83%ab%e3%83%87%e3%83%bc%e3%82%bf/"
@@ -39,12 +40,12 @@ class Scrayp:
         #MainMenu = self.driver.find_elements(by.By.CLASS_NAME,'simple_square_btn')
         self.driver.get(self.targetURL + self.areaName)
         #地域の店舗URLを取得
-        holeList = self .driver.find_elements(by.By.CLASS_NAME,"table-row")
+        holeList = self .driver.find_elements(By.CLASS_NAME,"table-row")
         for hole in holeList:
             if hole.text =='ホール名\n市区郡':
                 continue
-            time.sleep(2)
-            holeURL=  hole.find_element(by.By.TAG_NAME,"a").get_attribute('href')
+            sleep(2)
+            holeURL=  hole.find_element(By.TAG_NAME,"a").get_attribute('href')
             insertQuery = self.GetHoleData(holeURL,hole.text)
             print("")
         #######
@@ -58,5 +59,6 @@ class Scrayp:
         NewDriver.get(HoleURL)
         self.AD_blocker(NewDriver)
         print(f'{HoleName} access')
+        #指定された日付分データを取得
         
         
