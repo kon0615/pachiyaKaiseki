@@ -12,6 +12,9 @@ class Scrayp:
     targetURL =r"https://ana-slo.com/%e3%83%9b%e3%83%bc%e3%83%ab%e3%83%87%e3%83%bc%e3%82%bf/"
     ad = '#google_vignette'
     todayDatetime =  datetime.datetime.today() 
+
+    profilePath =r'C:\\Users\\server\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
+    userName = 'ユーザー1'
     def __init__(self,Area:str) -> None:
         self.areaName = Area
         self.date =f'{self.todayDatetime.year}/{self.todayDatetime.month}/{self.todayDatetime.day}' 
@@ -19,8 +22,14 @@ class Scrayp:
         
     def start_webdriver(self):
         options = Options()
+        
+        #options.add_argument(f"--profile-directory={self.userName}")
+        options.add_extension(r"C:\\Users\\server\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\cfhdojbkjhnklbpkdaibdccddilifddb\\3.25_0.crx")
+       # options.add_argument(r"--user-data-dir=./profile")       
         options.add_argument('--disable-popup-blocking')
+        options.add_argument('--enable-sync-extensions')
         self.driver = webdriver.Chrome(options=options)
+
         self.driver.get(self.targetURL)
         print("webdriver start")
     def AD_blocker(self,driver:webdriver.Chrome) :
@@ -52,10 +61,11 @@ class Scrayp:
             if hole.text =='ホール名\n市区郡':#カラムも拾っちゃうから除外
                 continue
             sleep(2)
+            #ホールのURL
             holeURL=  hole.find_element(By.TAG_NAME,"a").get_attribute('href')
             self.SETHoleData(holeURL,hole.text)
-            #ホールごとにインサート
-            #insert.InsertToDB(insertQuery)
+           
+           
             print("")
         
         #######
@@ -65,7 +75,12 @@ class Scrayp:
     #ホールデータを取得して文字列に
     def SETHoleData(self,HoleURL:str,HoleName) :
         options = Options()
+        #options.add_argument(fr"--user-data-dir={self.profilePath}")
+        #options.add_argument(f"--profile-directory={self.userName}")
+        options.add_extension(r"C:\\Users\\server\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\cfhdojbkjhnklbpkdaibdccddilifddb\\3.25_0.crx")
+        
         options.add_argument('--disable-popup-blocking')
+        options.add_argument('--enable-sync-extensions')
         NewDriver= webdriver.Chrome(options=options)
         NewDriver.get(HoleURL)
         self.AD_blocker(NewDriver)
@@ -92,7 +107,7 @@ class Scrayp:
             daytxt2 = dayTxt[0:10] #曜日排除
             
             if not(dt.strptime(daytxt2,'%Y/%m/%d') >= dt.strptime(self.startDay,'%Y/%m/%d')    and dt.strptime(daytxt2,'%Y/%m/%d')  <= dt.strptime(self.ENDday,'%Y/%m/%d')) :
-                continue
+                break
             print(dayTxt)
             try:
                 DaiDataURL = cell.find_element(By.TAG_NAME,'a').get_attribute('href')
@@ -111,10 +126,23 @@ class Scrayp:
         tenpo = TenpoName[0:indexOf(TenpoName,'\n')]
         chiiki = TenpoName.replace(tenpo,'').replace('\n','')
         options = Options()
-        options.add_argument('--disable-popup-blocking')
+        #options.add_argument(fr"--user-data-dir={self.profilePath}")
+        #options.add_argument(f"--profile-directory={self.userName}")
+        options.add_extension(r"C:\\Users\\server\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\cfhdojbkjhnklbpkdaibdccddilifddb\\3.25_0.crx")
+        options.add_argument('--headless')
+        options.add_argument('--enable-popup-blocking')
+        options.add_argument('--enable-sync-extensions')
         daiDriver  = webdriver.Chrome(options=options)
         daiDriver.get(URL)
+        
+        self.AD_blocker(daiDriver)
+        daiDriver.get(daiDriver.current_url.replace(self.ad,''))
+
         daiDriver.find_element(By.XPATH,'//*[@id="all_data_btn"]').click()
+        if daiDriver.current_url ==self.ad:
+                    self.AD_blocker(daiDriver)
+                    daiDriver.find_element(By.XPATH,'//*[@id="all_data_btn"]').click()
+
         daiTBL =daiDriver.find_element(By.XPATH,'//*[@id="all_data_table"]/tbody')
         DaiRow = daiTBL.find_elements(By.TAG_NAME,'tr')
         print('catch')
@@ -125,16 +153,20 @@ class Scrayp:
             if len(retStr) > 0:
                 retStr += ','
             
-            
-            DataCell = row.find_elements(By.CLASS_NAME,'table_cells')
-            cell0 = DataCell[0].get_attribute("textContent")
-            cell1 = DataCell[1].get_attribute("textContent").replace(',','')
-            cell2 = DataCell[2].get_attribute("textContent").replace(',','')
-            cell3 = DataCell[3].get_attribute("textContent").replace(',','')
-            cell4 = DataCell[4].get_attribute("textContent").replace(',','')
-            cell5 = DataCell[5].get_attribute("textContent").replace(',','')
-            cell6 = DataCell[6].get_attribute("textContent").replace(',','')
-            cell7 = DataCell[7].get_attribute("textContent").replace(',','')
+            try:
+                DataCell = row.find_elements(By.CLASS_NAME,'table_cells')
+                cell0 = DataCell[0].get_attribute("textContent")
+                cell1 = DataCell[1].get_attribute("textContent").replace(',','')
+                cell2 = DataCell[2].get_attribute("textContent").replace(',','')
+                cell3 = DataCell[3].get_attribute("textContent").replace(',','')
+                cell4 = DataCell[4].get_attribute("textContent").replace(',','')
+                cell5 = DataCell[5].get_attribute("textContent").replace(',','')
+                cell6 = DataCell[6].get_attribute("textContent").replace(',','')
+                cell7 = DataCell[7].get_attribute("textContent").replace(',','')
+            except:
+                continue
+
+           
 
             retStr += f"('{day}','{tenpo}','{chiiki}','{Title}','{cell0}','{cell1}','{cell2}','{cell3}','{cell4}','{cell5}','{cell6}','{cell7}','{self.date}')"
         return retStr
