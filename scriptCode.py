@@ -1,5 +1,4 @@
 from operator import indexOf
-
 from selenium import webdriver
 from selenium.webdriver.remote  import webelement
 from selenium.webdriver.common.by import By    
