@@ -1,15 +1,15 @@
 import sys 
-from scriptCode import Scrayp
+import scriptCode
 
 
 def main():
     areaName =["宮城県"]
-    test_startDay = "20230101"
-    test_endDay   = "20240101"
+    test_startDay = "2023/01/01"
+    test_endDay   = "2024/04/01"
     print(",".join(areaName))
     for area in areaName:
         
-        scrayp = Scrayp(area)
+        scrayp = scriptCode.Scrayp(area)
         scrayp.Start_scrayping(test_startDay,test_endDay)
     
 if __name__ =="__main__":
