@@ -5,7 +5,7 @@ import scriptCode
 def main():
     areaName =["宮城県","岡山県"]
     test_startDay = '2023/02/28' #sys.argv[0]
-    test_endDay   = '2024/03/09' #sys.argv[1]
+    test_endDay   = '2024/03/11' #sys.argv[1]
     print(",".join(areaName))
     for area in areaName:
         
