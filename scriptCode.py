@@ -1,5 +1,5 @@
 from math import e
-from operator import indexOf
+from operator import index, indexOf
 from os import replace
 from socket import timeout
 import time
@@ -68,17 +68,19 @@ class Scrayp:
        
         #地域の店舗URLを取得
         
-        #insert = DB()
+        #
+        skipHoleName = 'アムズガーデン石巻湊店'
+        flag = False
         for hole in holeList:
-            
+            if skipHoleName  not  in hole.text or flag == True:
+                continue
+            flag = True
             if hole.text =='ホール名\n市区郡':#カラムも拾っちゃうから除外
                 continue
             
             #ホールのURL
             holeURL=  hole.find_element(By.TAG_NAME,"a").get_attribute('href')
             self.SETHoleData(holeURL,hole.text)
-           
-           
             print("")
         
         #######
@@ -106,7 +108,6 @@ class Scrayp:
 
        
         
-        queryHeader = 'Insert into アナスロ元データ([年月日],[店舗名] ,[地域名],[機種名],[台番号],[G数],[差枚],[BB],[RB],[合成確率],[BB確率],[RB確率],[データ作成年月日],[ART],[ART確率]) VALUES'
         innerQuery =''
         #日ごとにループ
         insert = DB()
@@ -138,7 +139,9 @@ class Scrayp:
             
             try:
                 innerQuery += self.GetDaiData(DaiDataURL,daytxt2,HoleName)
-                insert.InsertToDB(queryHeader + innerQuery)
+                
+                
+                insert.InsertToDB( innerQuery)
             except  Exception as e :
                 print('[error]' +cell.text )
                 print(e)
@@ -167,9 +170,11 @@ class Scrayp:
         daiDriver.find_element(By.XPATH,'//*[@id="all_data_btn"]').click()
 
         #カラムにARTを含むか調べる
-        DaiCols =  daiDriver.find_element(By.XPATH,'//*[@id="all_data_table"]/thead/tr/th[1]')
-        InART = self.isART(DaiCols)
+        DaiCols =  daiDriver.find_elements(By.XPATH,'//*[@id="all_data_table"]/thead/tr/th')
+        #InART = self.isART(DaiCols)
 
+        queryHeader = f'Insert into アナスロ元データ([年月日],[店舗名] ,[地域名],[機種名]{self.AddqueryHeader(DaiCols)},[データ作成年月日]) VALUES'
+        
         daiTBL =daiDriver.find_element(By.XPATH,'//*[@id="all_data_table"]/tbody')
         DaiRow = daiTBL.find_elements(By.TAG_NAME,'tr')
         print('catch')
@@ -184,30 +189,24 @@ class Scrayp:
             #行データを取得して配列を作る
             DataCell = row.find_elements(By.CLASS_NAME,'table_cells')
             #ART項目があるかどうかで変化
-            if InART ==False:
-                cell0 = DataCell[0].get_attribute("textContent")
-                cell1 = DataCell[1].get_attribute("textContent").replace(',','')
-                cell2 = DataCell[2].get_attribute("textContent").replace(',','')
-                cell3 = DataCell[3].get_attribute("textContent")
-                cell4 = DataCell[4].get_attribute("textContent")
-                cell5 = DataCell[5].get_attribute("textContent")
-                cell6 = DataCell[6].get_attribute("textContent")
-                cell7 = DataCell[7].get_attribute("textContent")
-                retStr += f"('{day}','{tenpo}','{chiiki}','{Title}','{cell0}','{cell1}','{cell2}','{cell3}','{cell4}','{cell5}','{cell6}','{cell7}','{self.date}','0','1/0.0')"
-            else:
-                cell0 = DataCell[0].get_attribute("textContent")
-                cell1 = DataCell[1].get_attribute("textContent").replace(',','')
-                cell2 = DataCell[2].get_attribute("textContent").replace(',','')
-                cell3 = DataCell[3].get_attribute("textContent")
-                cell4 = DataCell[4].get_attribute("textContent")
-                cell5 = DataCell[6].get_attribute("textContent")
-                cell6 = DataCell[7].get_attribute("textContent")
-                cell7 = DataCell[8].get_attribute("textContent")
-                ARTCoData =  DataCell[5].get_attribute("textContent")
-                ARTPrData = DataCell[9].get_attribute("textContent")
-                retStr += f"('{day}','{tenpo}','{chiiki}','{Title}','{cell0}','{cell1}','{cell2}','{cell3}','{cell4}','{cell5}','{cell6}','{cell7}','{self.date}','{ARTCoData}','{ARTPrData}')"
+            datastr='('
+            index = -1
+            datastr += f"'{day}','{tenpo}','{chiiki}','{Title}'"
+            for Data in DataCell:
+                index += 1
+                datastr += f",'{DataCell[index].get_attribute('textContent').replace(',','')}'"
+            
+            retStr += datastr +f",'{self.date}'"
+            retStr += ')'
         daiDriver.quit()
-        return retStr
+        return queryHeader + retStr
+    def AddqueryHeader(self,cols:list[webelement.WebElement])->str:
+        
+        retstr =''
+        for Name in cols:
+            if Name.accessible_name !='機種名':
+                retstr += f',[{Name.accessible_name }]'
+        return retstr
     def reflashError(self,driver:webdriver.Chrome):
         timeOut = 0
         while(driver.title =='データベースエラー'):
@@ -246,4 +245,5 @@ class DB:
         #resultID = cursor.fetchval()
         #print(f"inserted :{resultID}")
         self.conn.commit()
+        cursor.close()
         print('[insert] sucsessful')
