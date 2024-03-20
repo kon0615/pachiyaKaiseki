@@ -13,7 +13,7 @@ from selenium.webdriver.chrome.options import Options
 from time import sleep
 from datetime import datetime as dt
 import datetime
-
+import gc
 class Scrayp:
     targetURL =r"https://ana-slo.com/%e3%83%9b%e3%83%bc%e3%83%ab%e3%83%87%e3%83%bc%e3%82%bf/"
     ad = '#google_vignette'
@@ -34,7 +34,7 @@ class Scrayp:
        # options.add_argument(r"--user-data-dir=./profile")       
         options.add_argument('--disable-popup-blocking')
         options.add_argument('--enable-sync-extensions')
-       # options.add_argument('--headless')
+        #options.add_argument('--headless')
         self.driver = webdriver.Chrome(options=options)
 
         self.driver.get(self.targetURL)
@@ -64,15 +64,15 @@ class Scrayp:
         
         self.reflashError(self.driver)
         holeList = self .driver.find_elements(By.CLASS_NAME,"table-row")
-            
-       
+        
         #地域の店舗URLを取得
         
         #
-        skipHoleName = 'アムズガーデン石巻湊店'
+        skipHoleName = 'パラディソ大和ドルフィン館'
+        #
         flag = False
         for hole in holeList:
-            if skipHoleName  not  in hole.text or flag == True:
+            if skipHoleName  not  in hole.text and flag == False:
                 continue
             flag = True
             if hole.text =='ホール名\n市区郡':#カラムも拾っちゃうから除外
@@ -148,7 +148,8 @@ class Scrayp:
                 continue
         #リソース開放
         NewDriver.quit()
-        
+        insert.close()
+        gc.collect()
     def GetDaiData(self,URL:str,day:str,TenpoName:str) -> str:
         retStr =''
         tenpo = TenpoName[0:indexOf(TenpoName,'\n')]
@@ -199,6 +200,7 @@ class Scrayp:
             retStr += datastr +f",'{self.date}'"
             retStr += ')'
         daiDriver.quit()
+        gc.collect()
         return queryHeader + retStr
     def AddqueryHeader(self,cols:list[webelement.WebElement])->str:
         
@@ -214,12 +216,7 @@ class Scrayp:
                 return
             driver.refresh()
             timeOut +=1
-    def  isART(self,target:webelement.WebElement)-> bool:
-        Names = target.find_elements(By.TAG_NAME,'th')
-        for Name in Names:
-            if Name.text == 'ART' or Name.text == 'ART確率':
-                return True 
-        return False
+    
 import pyodbc
 class DB:
     driver = "{SQL Server}"
@@ -234,7 +231,8 @@ class DB:
         except:
             print("DB connection error")
             return
-    
+    def close(self):
+        self.conn.close()
     def InsertToDB(self,query:str):
         cursor = self.conn.cursor()
         
@@ -242,8 +240,8 @@ class DB:
         cursor.execute(query)
         
         
-        #resultID = cursor.fetchval()
-        #print(f"inserted :{resultID}")
+        
         self.conn.commit()
         cursor.close()
+        
         print('[insert] sucsessful')
