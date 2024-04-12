@@ -18,8 +18,8 @@ class Scrayp:
     targetURL =r"https://ana-slo.com/%e3%83%9b%e3%83%bc%e3%83%ab%e3%83%87%e3%83%bc%e3%82%bf/"
     ad = '#google_vignette'
     todayDatetime =  datetime.datetime.today() 
-
-    profilePath =r'C:\\Users\\server\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
+    extantionPath =r"C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\gighmmpiobklfepjocnamgkkbiglidom\\5.21.0_0.crx"
+    profilePath =r'C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
     userName = 'ユーザー1'
     def __init__(self,Area:str) -> None:
         self.areaName = Area
@@ -30,7 +30,7 @@ class Scrayp:
         options = Options()
         
         #options.add_argument(f"--profile-directory={self.userName}")
-        options.add_extension(r"C:\\Users\\server\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\cfhdojbkjhnklbpkdaibdccddilifddb\\3.25_0.crx")
+        options.add_extension(self.extantionPath)
        # options.add_argument(r"--user-data-dir=./profile")       
         options.add_argument('--disable-popup-blocking')
         options.add_argument('--enable-sync-extensions')
@@ -68,9 +68,9 @@ class Scrayp:
         #地域の店舗URLを取得
         
         #
-        skipHoleName = 'パラディソ大和ドルフィン館'
+        skipHoleName = ''
         #
-        flag = False
+        flag = True
         for hole in holeList:
             if skipHoleName  not  in hole.text and flag == False:
                 continue
@@ -92,7 +92,7 @@ class Scrayp:
         options = Options()
         #options.add_argument(fr"--user-data-dir={self.profilePath}")
         #options.add_argument(f"--profile-directory={self.userName}")
-        options.add_extension(r"C:\\Users\\server\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\cfhdojbkjhnklbpkdaibdccddilifddb\\3.25_0.crx")
+        options.add_extension(self.extantionPath)
         #options.add_argument('--headless')
         options.add_argument('--disable-popup-blocking')
         options.add_argument('--enable-sync-extensions')
@@ -157,7 +157,7 @@ class Scrayp:
         options = Options()
         #options.add_argument(fr"--user-data-dir={self.profilePath}")
         #options.add_argument(f"--profile-directory={self.userName}")
-        options.add_extension(r"C:\\Users\\server\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\cfhdojbkjhnklbpkdaibdccddilifddb\\3.25_0.crx")
+        options.add_extension(self.extantionPath)
         #options.add_argument('--headless')
         options.add_argument('--enable-popup-blocking')
         options.add_argument('--enable-sync-extensions')
