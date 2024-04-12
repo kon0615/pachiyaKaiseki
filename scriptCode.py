@@ -18,7 +18,9 @@ class Scrayp:
     targetURL =r"https://ana-slo.com/%e3%83%9b%e3%83%bc%e3%83%ab%e3%83%87%e3%83%bc%e3%82%bf/"
     ad = '#google_vignette'
     todayDatetime =  datetime.datetime.today() 
+    ##クロームでadBlockの拡張機能をインストールしてパッケージ化したファイルの保存先を入力
     extantionPath =r"C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\gighmmpiobklfepjocnamgkkbiglidom\\5.21.0_0.crx"
+    ##########
     profilePath =r'C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
     userName = 'ユーザー1'
     def __init__(self,Area:str) -> None:
