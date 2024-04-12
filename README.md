@@ -19,3 +19,7 @@ CREATE TABLE [dbo].[アナスロ元データ](
 	[ART] [int] NULL,
 	[ART確率] [nvarchar](50) NULL
 ) ON [PRIMARY]
+
+
+
+長時間実行しているとプロセスがたまりPCがクラッシュします。
